@@ -1,15 +1,15 @@
-import React, {  useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   LayoutDashboard,
   FileText,
   Image,
-  Tag,
   MessageCircle,
   Star,
   Mail,
   Menu,
   X,
   LogOut,
+  User,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import _ from "lodash";
@@ -19,6 +19,8 @@ import {
 } from "../../helpers/notifi_helper";
 import { logout } from "../../api/api";
 import { AnimatePresence, motion } from "framer-motion";
+import { HiOutlineRectangleGroup } from "react-icons/hi2";
+import { PiNetwork } from "react-icons/pi";
 
 const Sidenav = () => {
   const navigate = useNavigate();
@@ -69,10 +71,12 @@ const Sidenav = () => {
     { name: "Dashboard", icon: LayoutDashboard, path: "/mec-admin" },
     { name: "Blogs", icon: FileText, path: "/mec-admin/blogs" },
     { name: "Banners", icon: Image, path: "/mec-admin/banners" },
-    { name: "Offers", icon: Tag, path: "/mec-admin/offers" },
+    { name: "Clients", icon: User, path: "/mec-admin/clients" },
     { name: "Enquiries", icon: MessageCircle, path: "/mec-admin/enquiries" },
     { name: "Reviews", icon: Star, path: "/mec-admin/reviews" },
     { name: "Subscribers", icon: Mail, path: "/mec-admin/subscribers" },
+    { name: "project", icon: HiOutlineRectangleGroup, path: "/mec-admin/project" },
+    { name: "work", icon: PiNetwork, path: "/mec-admin/work" },
   ];
 
   // if (isCheckingSession) {
@@ -89,10 +93,10 @@ const Sidenav = () => {
       className={`h-screen flex flex-col sticky top-0 z-40 border-r border-zinc-800 
       bg-gradient-to-b from-zinc-950 via-zinc-900 to-black text-gray-300 
       backdrop-blur-xl transition-all duration-500 
-      ${isSidebarOpen ? "w-60":"w-20"}`}
+      ${isSidebarOpen ? "w-60" : "w-20"}`}
     >
       {/* 🔹 Header / Logo */}
-      <div className={`flex items-center  ${isSidebarOpen ? "justify-between" : "justify-center" }  px-4 py-4 border-b border-zinc-800 bg-zinc-950/60`}>
+      <div className={`flex items-center  ${isSidebarOpen ? "justify-between" : "justify-center"}  px-4 py-4 border-b border-zinc-800 bg-zinc-950/60`}>
         <AnimatePresence>
           {isSidebarOpen && (
             <motion.h1
@@ -128,17 +132,15 @@ const Sidenav = () => {
               to={path}
               end={path === "/mec-admin"}
               className={({ isActive }) =>
-                `group relative flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  isActive
-                    ? "bg-gradient-to-r from-red-600/90 via-orange-500/90 to-yellow-400/90 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] scale-[1.02]"
-                    : "hover:bg-zinc-900 hover:text-red-400"
+                `group relative flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${isActive
+                  ? "bg-gradient-to-r from-red-600/90 via-orange-500/90 to-yellow-400/90 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] scale-[1.02]"
+                  : "hover:bg-zinc-900 hover:text-red-400"
                 }`
               }
             >
               <Icon
-                className={`w-5 h-5 transition-all duration-200 ${
-                  isSidebarOpen ? "" : "mx-auto"
-                } group-hover:text-red-400`}
+                className={`w-5 h-5 transition-all duration-200 ${isSidebarOpen ? "" : "mx-auto"
+                  } group-hover:text-red-400`}
               />
               {isSidebarOpen && (
                 <motion.span

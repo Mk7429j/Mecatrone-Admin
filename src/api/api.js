@@ -146,7 +146,7 @@ export const uploadImageAPI = async (files) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    console.log(data, "asdasd");
+    
     return data;
 
   } catch (error) {
@@ -224,6 +224,369 @@ export const deleteBlogAPI = async (id) => {
   }
 };
 
+
+// ==================================================
+// 🖼️ BANNER API FUNCTIONS
+// ==================================================
+
+// ➕ Add new banner
+export const addBannerAPI = async (data) => {
+  try {
+    const res = await custom_request.post("/banner/add", data);
+    return res.data;
+  } catch (err) {
+    console.error("Add banner failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 📜 Get all banners
+export const getBannersAPI = async () => {
+  try {
+    const res = await custom_request.get("/banner/get");
+    return res.data;
+  } catch (err) {
+    console.error("Get banners failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🔍 Get banner by ID
+export const getBannerByIdAPI = async (id) => {
+  try {
+    const res = await custom_request.get(`/banner/get/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("Get banner by ID failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// ✏️ Edit banner
+export const editBannerAPI = async (id, data) => {
+  try {
+    const res = await custom_request.put(`/banner/edit/${id}`, data);
+    return res.data;
+  } catch (err) {
+    console.error("Edit banner failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🗑️ Delete banner
+export const deleteBannerAPI = async (id) => {
+  try {
+    const res = await custom_request.delete(`/banner/delete/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("Delete banner failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🟢 Add Enquiry (public — no token needed)
+export const addEnquiryAPI = async (data) => {
+  try {
+    const res = await custom_request.post(`/enquiry/add`, data);
+    return res.data;
+  } catch (err) {
+    console.error("Add enquiry failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 📜 Get All Enquiries (Admin — token required)
+export const getAllEnquiriesAPI = async () => {
+  try {
+    const res = await custom_request.get(`/enquiry/getall`);
+    return res.data;
+  } catch (err) {
+    console.error("Get all enquiries failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🔍 Get Enquiry By ID
+export const getEnquiryByIdAPI = async (id) => {
+  try {
+    const res = await custom_request.get(`/enquiry/get/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("Get enquiry by ID failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// ✏️ Edit Enquiry
+export const editEnquiryAPI = async (id, data) => {
+  try {
+    const res = await custom_request.put(`/enquiry/edit/${id}`, data);
+    return res.data;
+  } catch (err) {
+    console.error("Edit enquiry failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🗑️ Delete Enquiry
+export const deleteEnquiryAPI = async (id) => {
+  try {
+    const res = await custom_request.delete(`/enquiry/delete/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("Delete enquiry failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// ================================
+// 📦 REVIEW API CALLS
+// ================================
+
+// ➕ Add Review (Public or Auth, based on your backend)
+export const addReviewAPI = async (data) => {
+  try {
+    const res = await custom_request.post("/review/add", data);
+    return res.data;
+  } catch (err) {
+    console.error("Add review failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 📜 Get All Reviews
+export const getAllReviewsAPI = async () => {
+  try {
+    const res = await custom_request.get("/review/all");
+    return res.data;
+  } catch (err) {
+    console.error("Get all reviews failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// ✏️ Edit Review (Requires Auth)
+export const editReviewAPI = async (id, data) => {
+  try {
+    const res = await custom_request.put(`/review/edit/${id}`, data);
+    return res.data;
+  } catch (err) {
+    console.error("Edit review failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// ❌ Delete Review (Requires Auth)
+export const deleteReviewAPI = async (id) => {
+  try {
+    const res = await custom_request.delete(`/review/delete/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("Delete review failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 📨 Add new subscriber (Public)
+export const addSubscriberAPI = async (data) => {
+  try {
+    const res = await custom_request.post("/news/add", data);
+    return res.data;
+  } catch (err) {
+    console.error("Add subscriber failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 📰 Get all subscribers
+export const getAllSubscribersAPI = async () => {
+  try {
+    const res = await custom_request.get("/news/get");
+    return res.data;
+  } catch (err) {
+    console.error("Get all subscribers failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🗑️ Delete subscribers (bulk delete)
+export const deleteSubscribersAPI = async (ids) => {
+  try {
+    const res = await custom_request.delete("/news/delete", {
+      data: { ids }, // send ids array in body
+    });
+    return res.data;
+  } catch (err) {
+    console.error("Delete subscribers failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+
+// 🧩 Add a new client
+export const addClientAPI = async (data) => {
+  try {
+    const res = await custom_request.post("/clients/add_client", data);
+    return res.data;
+  } catch (err) {
+    console.error("Add client failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 📋 Get all clients
+export const getAllClientsAPI = async () => {
+  try {
+    const res = await custom_request.get("/clients/get_all_clients");
+    return res.data;
+  } catch (err) {
+    console.error("Get all clients failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🔍 Get client by ID
+export const getClientByIdAPI = async (id) => {
+  try {
+    const res = await custom_request.get(`/clients/get_client/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("Get client by ID failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// ✏️ Edit client
+export const editClientAPI = async (id, data) => {
+  try {
+    const res = await custom_request.put(`/clients/edit_client/${id}`, data);
+    return res.data;
+  } catch (err) {
+    console.error("Edit client failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🗑️ Delete client
+export const deleteClientAPI = async (id) => {
+  try {
+    const res = await custom_request.delete(`/clients/delete_client/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("Delete client failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🟢 ADD PROJECT
+export const addProjectAPI = async (data) => {
+  try {
+    const res = await custom_request.post("/project/add", data);
+    return res.data;
+  } catch (err) {
+    console.error("Add project failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🟢 GET ALL PROJECTS
+export const getAllProjectsAPI = async () => {
+  try {
+    const res = await custom_request.get("/project/all");
+    return res.data;
+  } catch (err) {
+    console.error("Get all projects failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🟢 GET PROJECT BY ID
+export const getProjectByIdAPI = async (id) => {
+  try {
+    const res = await custom_request.get(`/project/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("Get project by ID failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🟢 EDIT PROJECT
+export const editProjectAPI = async (id, data) => {
+  try {
+    const res = await custom_request.put(`/project/edit/${id}`, data);
+    return res.data;
+  } catch (err) {
+    console.error("Edit project failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🟢 DELETE PROJECT
+export const deleteProjectAPI = async (id) => {
+  try {
+    const res = await custom_request.delete(`/project/delete/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("Delete project failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🟢 Add Work
+export const addWorkAPI = async (data) => {
+  try {
+    const res = await custom_request.post("/work/add", data);
+    return res.data;
+  } catch (err) {
+    console.error("Add work failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🟢 Get All Works (Public)
+export const getAllWorksAPI = async () => {
+  try {
+    const res = await custom_request.get("/work/get");
+    return res.data;
+  } catch (err) {
+    console.error("Get all works failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🟢 Get Work by ID (Admin)
+export const getWorkByIdAPI = async (id) => {
+  try {
+    const res = await custom_request.get(`/work/get/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("Get work by id failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🟢 Edit Work
+export const editWorkAPI = async (id, data) => {
+  try {
+    const res = await custom_request.put(`/work/edit/${id}`, data);
+    return res.data;
+  } catch (err) {
+    console.error("Edit work failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// 🟢 Delete Work
+export const deleteWorkAPI = async (id) => {
+  try {
+    const res = await custom_request.delete(`/work/delete/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("Delete work failed:", err);
+    return err.response?.data || { success: false, message: "Server error" };
+  }
+};
 
 // ===================================================
 // 🔹 Utility
