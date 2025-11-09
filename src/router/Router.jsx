@@ -21,7 +21,10 @@ import ResetPassword from "../components/auth/ResetPassword";
 import Clients from "../pages/clients/Clients";
 import Projects from "../pages/projects/Projects";
 import Work from "../pages/work/Work";
-
+import Admin from "../components/admin/Admin";
+import { isLoginSuccess } from "../redux/slices/authSlice";
+import { useDispatch } from "react-redux";
+import Voucher from "../pages/voucher/Voucher";
 // ===================================================
 // 🔸 Private Route Wrapper (For Protected Admin Pages)
 // ===================================================
@@ -29,12 +32,23 @@ const PrivateRoute = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const verifySession = async () => {
       try {
         const res = await checkLoginStatus();
         if (res?.success) {
+          const userData = {
+            _id: res?.data?._id || res?.data?.id,
+            name: res?.data?.name,
+            email: res?.data?.email,
+            role: res?.data?.role,
+            phone: res?.data?.phone,
+            img: res?.data?.img,
+          };
+          // ✅ Dispatch login success to Redux
+          dispatch(isLoginSuccess(userData));
           setIsAuthenticated(true);
         } else {
           setIsAuthenticated(false);
@@ -87,8 +101,10 @@ const router = createBrowserRouter([
           { path: "enquiries/:id", element: <Singleenquirie /> }, // ✅ moved inside protected layout
           { path: "reviews", element: <Reviews /> },
           { path: "subscribers", element: <Subscribers /> },
+          { path: "voucher", element: <Voucher /> },
           { path: "project", element: <Projects /> },
           { path: "work", element: <Work /> },
+          { path: "admin", element: <Admin /> },
         ],
       },
     ],

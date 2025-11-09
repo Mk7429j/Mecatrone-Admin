@@ -133,6 +133,61 @@ export const logout = async () => {
   }
 };
 
+// ✅ Add new admin
+export const addAdminAPI = async (adminData) => {
+  try {
+    const { data } = await custom_request.post("/admin/add_admin", adminData);
+    return data;
+  } catch (error) {
+    handleApiError(error);
+    return null;
+  }
+};
+
+// ✅ Get admin by ID
+export const getAdminAPI = async (id) => {
+  try {
+    const { data } = await custom_request.get(`/admin/get_admin/${id}`);
+    return data;
+  } catch (error) {
+    handleApiError(error);
+    return null;
+  }
+};
+
+export const getAllAdminsAPI = async () => {
+  try {
+    const { data } = await custom_request.get("/admin/get_all_admins");
+    return data;
+  } catch (error) {
+    handleApiError(error);
+    return null;
+  }
+};
+
+// ✅ Update admin
+export const updateAdminAPI = async (id, adminData) => {
+  try {
+    const { data } = await custom_request.put(`/admin/update_admin/${id}`, adminData);
+    return data;
+  } catch (error) {
+    handleApiError(error);
+    return null;
+  }
+};
+
+// ✅ Delete admin
+export const deleteAdminAPI = async (id) => {
+  try {
+    const { data } = await custom_request.delete(`/admin/delete_admin/${id}`);
+    return data;
+  } catch (error) {
+    handleApiError(error);
+    return null;
+  }
+};
+
+
 // 🧩 src/api/api.js
 
 // ✅ Upload Images
@@ -146,7 +201,7 @@ export const uploadImageAPI = async (files) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    
+
     return data;
 
   } catch (error) {
@@ -585,6 +640,50 @@ export const deleteWorkAPI = async (id) => {
   } catch (err) {
     console.error("Delete work failed:", err);
     return err.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+// ✅ Add new voucher
+export const addVoucherAPI = async (voucherData) => {
+  try {
+    const { data } = await custom_request.post("/voucher/add", voucherData);
+    return data;
+  } catch (error) {
+    handleApiError(error);
+    return null;
+  }
+};
+
+// ✅ Get all vouchers
+export const getAllVouchersAPI = async () => {
+  try {
+    const { data } = await custom_request.get("/voucher/all");
+    return data;
+  } catch (error) {
+    handleApiError(error);
+    return null;
+  }
+};
+
+// ✅ Get voucher by ID
+export const getVoucherByIdAPI = async (id) => {
+  try {
+    const { data } = await custom_request.get(`/voucher/${id}`);
+    return data;
+  } catch (error) {
+    handleApiError(error);
+    return null;
+  }
+};
+
+// ✅ Delete voucher
+export const deleteVoucherAPI = async (id) => {
+  try {
+    const { data } = await custom_request.delete(`/voucher/delete/${id}`);
+    return data;
+  } catch (error) {
+    handleApiError(error);
+    return null;
   }
 };
 

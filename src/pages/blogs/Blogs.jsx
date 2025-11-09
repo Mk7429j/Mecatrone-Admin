@@ -1,4 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Plus,
+  Edit3,
+  Trash2,
+  RefreshCw,
+  Image as ImageIcon,
+  X,
+  Upload,
+  FileText,
+  Eye
+} from "lucide-react";
 import {
   addBlogAPI,
   getBlogsAPI,
@@ -19,7 +31,8 @@ const Blogs = () => {
   const [editMode, setEditMode] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [imageUrls, setImageUrls] = useState([]); // multiple image support
+  const [imageUrls, setImageUrls] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
 
   const [form, setForm] = useState({
     blog_name: "",
@@ -53,7 +66,7 @@ const Blogs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...form, blog_images: imageUrls }; // multiple image support
+      const payload = { ...form, blog_images: imageUrls };
       let res;
 
       if (editMode && selectedBlog) {
@@ -122,16 +135,16 @@ const Blogs = () => {
       if (res?.success && Array.isArray(res.files) && res.files.length > 0) {
         const uploaded = res.files.map((f) => f.url);
         setImageUrls((prev) => [...prev, ...uploaded]);
-        successNotification("✅ Images uploaded successfully!");
+        successNotification("Images uploaded successfully!");
       } else {
-        errorNotification("❌ Upload failed");
+        errorNotification("Upload failed");
       }
     } catch (err) {
       console.error("Upload error:", err);
-      errorNotification("⚠️ Something went wrong during upload.");
+      errorNotification("Something went wrong during upload.");
     } finally {
       setUploading(false);
-      e.target.value = ""; // reset input
+      e.target.value = "";
     }
   };
 
@@ -142,7 +155,7 @@ const Blogs = () => {
       const res = await deleteImageAPI({ urls: [url] });
       if (res?.success) {
         setImageUrls((prev) => prev.filter((img) => img !== url));
-        successNotification("🗑️ Image deleted successfully");
+        successNotification("Image deleted successfully");
       } else {
         errorNotification(res?.message);
       }
@@ -152,200 +165,401 @@ const Blogs = () => {
     }
   };
 
+  // ✅ Toggle blog status
+  const toggleStatus = async (blog) => {
+    try {
+      const payload = {
+        blog_name: blog.blog_name,
+        short_description: blog.short_description,
+        blog_images: blog.blog_images,
+        is_active: !blog.is_active
+      };
+      
+      const res = await editBlogAPI(blog._id, payload);
+      if (res?.success) {
+        successNotification(`Blog ${!blog.is_active ? 'activated' : 'deactivated'} successfully`);
+        fetchBlogs();
+      } else {
+        errorNotification(res?.message);
+      }
+    } catch (err) {
+      errorNotification("Failed to update status");
+    }
+  };
+
   return (
-    <div className="p-6 bg-zinc-900/50 rounded-xl shadow-xl border border-zinc-800 text-white">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">📝 Blogs Management</h2>
-        <div className="space-x-3">
-          <button
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+      >
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+            Blogs Management
+          </h1>
+          <p className="text-gray-400 mt-1">Create and manage your blog posts</p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={fetchBlogs}
             disabled={loading}
-            className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md text-sm"
+            className="flex items-center gap-2 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 px-4 py-2 rounded-lg text-gray-300 transition-all backdrop-blur-sm"
           >
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             {loading ? "Refreshing..." : "Refresh"}
-          </button>
-          <button
+          </motion.button>
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => openModal()}
-            className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-md text-sm"
+            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 px-4 py-2 rounded-lg text-white font-medium shadow-lg shadow-blue-500/25 transition-all"
           >
+            <Plus className="w-4 h-4" />
             Add Blog
-          </button>
+          </motion.button>
         </div>
+      </motion.div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-zinc-900/80 border border-zinc-800 backdrop-blur-xl p-4 rounded-xl shadow-lg"
+        >
+          <div className="flex items-center justify-between">
+            <FileText className="w-8 h-8 text-blue-400" />
+            <span className="text-2xl font-bold text-white">{blogs.length}</span>
+          </div>
+          <p className="text-gray-400 text-sm mt-2">Total Blogs</p>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="bg-zinc-900/80 border border-zinc-800 backdrop-blur-xl p-4 rounded-xl shadow-lg"
+        >
+          <div className="flex items-center justify-between">
+            <Eye className="w-8 h-8 text-green-400" />
+            <span className="text-2xl font-bold text-white">
+              {blogs.filter(b => b.is_active).length}
+            </span>
+          </div>
+          <p className="text-gray-400 text-sm mt-2">Active Blogs</p>
+        </motion.div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border border-zinc-700 rounded-lg overflow-hidden">
-          <thead className="bg-zinc-800 text-gray-300">
-            <tr>
-              <th className="p-3">Images</th>
-              <th className="p-3">Blog Name</th>
-              <th className="p-3">Short Description</th>
-              <th className="p-3">Status</th>
-              <th className="p-3 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {blogs.length > 0 ? (
-              blogs.map((b) => (
-                <tr
-                  key={b._id}
-                  className="border-t border-zinc-700 hover:bg-zinc-800/50"
-                >
-                  <td className="p-3 flex gap-2">
-                    {Array.isArray(b.blog_images) && b.blog_images.length > 0 ? (
-                      b.blog_images.map((img, i) => (
-                        <img
-                          key={i}
-                          src={img}
-                          alt="blog"
-                          className="w-12 h-12 rounded-md object-cover"
-                        />
-                      ))
-                    ) : (
-                      <span className="text-gray-500 text-sm">No Images</span>
-                    )}
-                  </td>
-                  <td className="p-3 font-semibold">{b.blog_name}</td>
-                  <td className="p-3 text-gray-300">{b.short_description}</td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-1 rounded text-xs ${
-                        b.is_active
-                          ? "bg-green-200 text-green-800"
-                          : "bg-red-200 text-red-800"
-                      }`}
-                    >
-                      {b.is_active ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="p-3 text-right space-x-3">
-                    <button
-                      onClick={() => openModal(b)}
-                      className="text-blue-400 hover:text-blue-300"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      onClick={() => handleDelete(b._id)}
-                      className="text-red-400 hover:text-red-300"
-                    >
-                      🗑
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
+      {/* Blogs Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-zinc-900/80 border border-zinc-800 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden"
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-zinc-800/60 border-b border-zinc-700">
               <tr>
-                <td className="p-4 text-center text-gray-400" colSpan={5}>
-                  No blogs found
-                </td>
+                <th className="p-4 text-left text-gray-300 font-semibold">Blog</th>
+                <th className="p-4 text-left text-gray-300 font-semibold">Description</th>
+                <th className="p-4 text-left text-gray-300 font-semibold">Images</th>
+                <th className="p-4 text-left text-gray-300 font-semibold">Status</th>
+                <th className="p-4 text-right text-gray-300 font-semibold">Actions</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-zinc-800 p-6 rounded-lg w-full max-w-lg relative">
-            <h3 className="text-xl font-semibold mb-4">
-              {editMode ? "Edit Blog" : "Add Blog"}
-            </h3>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Blog Name */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Blog Name
-                </label>
-                <input
-                  type="text"
-                  name="blog_name"
-                  value={form.blog_name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 py-2 rounded-md bg-zinc-900 border border-zinc-700 focus:outline-none"
-                  placeholder="Enter blog name"
-                />
-              </div>
-
-              {/* Blog Images */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Blog Images
-                </label>
-
-                <div className="flex flex-wrap gap-3 mb-3">
-                  {imageUrls.map((url, i) => (
-                    <div key={i} className="relative">
-                      <img
-                        src={url}
-                        alt="Uploaded"
-                        className="w-20 h-20 rounded-md object-cover border border-zinc-700"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleImageDelete(url)}
-                        className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+            </thead>
+            <tbody>
+              {blogs.length > 0 ? (
+                blogs.map((blog, index) => (
+                  <motion.tr
+                    key={blog._id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors"
+                  >
+                    <td className="p-4">
+                      <div className="font-semibold text-white">{blog.blog_name}</div>
+                    </td>
+                    <td className="p-4">
+                      <p className="text-gray-300 text-sm line-clamp-2">
+                        {blog.short_description}
+                      </p>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        {Array.isArray(blog.blog_images) && blog.blog_images.length > 0 ? (
+                          <>
+                            {blog.blog_images.slice(0, 2).map((img, i) => (
+                              <motion.div
+                                key={i}
+                                whileHover={{ scale: 1.05 }}
+                                className="relative"
+                              >
+                                <img
+                                  src={img}
+                                  alt={`Blog ${i + 1}`}
+                                  className="w-12 h-12 rounded-lg object-cover cursor-pointer border border-zinc-700"
+                                  onClick={() => setPreviewImage(img)}
+                                />
+                                {blog.blog_images.length > 2 && i === 1 && (
+                                  <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center text-white text-xs">
+                                    +{blog.blog_images.length - 2}
+                                  </div>
+                                )}
+                              </motion.div>
+                            ))}
+                          </>
+                        ) : (
+                          <span className="text-gray-500 text-sm">No images</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => toggleStatus(blog)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                          blog.is_active
+                            ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                            : "bg-red-500/20 text-red-400 border border-red-500/30"
+                        }`}
                       >
-                        ✕
+                        {blog.is_active ? "Active" : "Inactive"}
+                      </motion.button>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex justify-end gap-2">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => openModal(blog)}
+                          className="p-2 text-blue-400 hover:text-blue-300 transition-colors"
+                          title="Edit"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => handleDelete(blog._id)}
+                          className="p-2 text-red-400 hover:text-red-300 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </motion.button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center">
+                    <div className="text-gray-400 flex flex-col items-center gap-2">
+                      <FileText className="w-12 h-12 opacity-50" />
+                      <p>No blogs found</p>
+                      <button
+                        onClick={() => openModal()}
+                        className="text-blue-400 hover:text-blue-300 text-sm"
+                      >
+                        Create your first blog
                       </button>
                     </div>
-                  ))}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
+
+      {/* Add/Edit Modal */}
+      <AnimatePresence>
+        {modalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-zinc-900/95 border border-zinc-800 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-white">
+                    {editMode ? "Edit Blog" : "Create New Blog"}
+                  </h3>
+                  <button
+                    onClick={() => setModalOpen(false)}
+                    className="p-2 text-gray-400 hover:text-white transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
 
-                <label className="cursor-pointer inline-block bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-md text-sm">
-                  {uploading ? "Uploading..." : "Upload Images"}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={handleUpload}
-                  />
-                </label>
-              </div>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Blog Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Blog Name
+                    </label>
+                    <input
+                      type="text"
+                      name="blog_name"
+                      value={form.blog_name}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                      placeholder="Enter blog name"
+                    />
+                  </div>
 
-              {/* Short Description */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Short Description
-                </label>
-                <textarea
-                  name="short_description"
-                  value={form.short_description}
-                  onChange={handleChange}
-                  rows={3}
-                  required
-                  maxLength={250}
-                  placeholder="Enter short description"
-                  className="w-full px-3 py-2 rounded-md bg-zinc-900 border border-zinc-700 focus:outline-none"
-                ></textarea>
-              </div>
+                  {/* Blog Images */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-3">
+                      Blog Images
+                    </label>
 
-              {/* Buttons */}
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md"
-                >
-                  {editMode ? "Update" : "Create"}
-                </button>
+                    {/* Image Preview Grid */}
+                    {imageUrls.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                        {imageUrls.map((url, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="relative group"
+                          >
+                            <img
+                              src={url}
+                              alt={`Upload ${i + 1}`}
+                              className="w-full h-24 rounded-lg object-cover border border-zinc-700 cursor-pointer"
+                              onClick={() => setPreviewImage(url)}
+                            />
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              type="button"
+                              onClick={() => handleImageDelete(url)}
+                              className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="w-3 h-3" />
+                            </motion.button>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Upload Button */}
+                    <label className="cursor-pointer inline-flex items-center gap-2 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 px-4 py-3 rounded-lg text-gray-300 transition-colors">
+                      <Upload className="w-4 h-4" />
+                      {uploading ? "Uploading..." : "Upload Images"}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={handleUpload}
+                        disabled={uploading}
+                      />
+                    </label>
+                    <p className="text-gray-500 text-xs mt-2">
+                      Supports multiple images (JPEG, PNG, WebP)
+                    </p>
+                  </div>
+
+                  {/* Short Description */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Short Description
+                    </label>
+                    <textarea
+                      name="short_description"
+                      value={form.short_description}
+                      onChange={handleChange}
+                      rows={4}
+                      required
+                      maxLength={250}
+                      placeholder="Enter short description..."
+                      className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                    />
+                    <div className="text-right text-gray-500 text-xs mt-1">
+                      {form.short_description.length}/250
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex justify-end gap-3 pt-4">
+                    <motion.button
+                      type="button"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setModalOpen(false)}
+                      className="px-6 py-2 bg-zinc-800 hover:bg-zinc-700 text-gray-300 rounded-lg transition-colors"
+                    >
+                      Cancel
+                    </motion.button>
+                    <motion.button
+                      type="submit"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-lg font-medium transition-all shadow-lg shadow-blue-500/25"
+                    >
+                      {editMode ? "Update Blog" : "Create Blog"}
+                    </motion.button>
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Image Preview Modal */}
+      <AnimatePresence>
+        {previewImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
+            onClick={() => setPreviewImage(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-4xl max-h-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="max-w-full max-h-[80vh] object-contain rounded-lg"
+              />
+              <button
+                onClick={() => setPreviewImage(null)}
+                className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
